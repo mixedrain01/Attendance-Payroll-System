@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bank & Tax Information Form</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+      background: url('bpc.png') no-repeat center center fixed;
+      background-size: cover;
+    }
+
+    /* Navigation styles */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: none;
+      z-index: 9;
+    }
+
+    .overlay.active {
+      display: block;
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #2e7d32;
+      padding: 10px 20px;
+      color: white;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      z-index: 11;
+    }
+
+    .hamburger {
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      background: none;
+      border: none;
+      z-index: 12;
+    }
+
+    .bar {
+      width: 25px;
+      height: 3px;
+      background-color: white;
+      margin: 4px 0;
+      transition: 0.4s;
+    }
+
+    .hamburger.open .bar:nth-child(1) {
+      transform: rotate(45deg) translate(5px, 5px);
+    }
+
+    .hamburger.open .bar:nth-child(2) {
+      opacity: 0;
+    }
+
+    .hamburger.open .bar:nth-child(3) {
+      transform: rotate(-45deg) translate(5px, -5px);
+    }
+
+    .logo img {
+      width: 50px;
+      margin-left: 10px;
+    }
+
+    .sidebar {
+      width: 260px;
+      background-color: #388e3c;
+      height: 100vh;
+      padding-top: 60px;
+      position: fixed;
+      left: -260px;
+      top: 0;
+      transition: left 0.3s ease;
+      z-index: 10;
+    }
+
+    .sidebar.active {
+      left: 0;
+    }
+
+    .ma {
+      margin: 0 0 10px 20px;
+      color: white;
+      font-weight: bold;
+    }
+
+    nav.category-nav ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    nav.category-nav > ul > li {
+      margin-bottom: 18px;
+    }
+
+    nav.category-nav a.category-link {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      text-decoration: none;
+      color: white;
+      font-weight: 600;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    nav.category-nav a.category-link:hover {
+      background-color: rgba(255, 255, 255, 0.15);
+    }
+
+    nav.category-nav ul ul {
+      margin-top: 8px;
+      margin-left: 15px;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.25s ease-out;
+    }
+
+    nav.category-nav ul ul.expanded {
+      max-height: 500px;
+    }
+
+    nav.category-nav ul ul li {
+      margin: 6px 0;
+    }
+
+    nav.category-nav ul ul a {
+      font-weight: 400;
+      font-size: 0.9rem;
+      color: #ddd;
+      padding: 6px 14px;
+      border-radius: 6px;
+      text-decoration: none;
+    }
+
+    nav.category-nav ul ul a:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .arrow {
+      font-size: 0.8rem;
+      transition: transform 0.25s ease;
+      user-select: none;
+    }
+
+    .arrow.expanded {
+      transform: rotate(90deg);
+    }
+
+    .main-content {
+      flex: 1;
+      margin-left: 0;
+      padding: 80px 20px 20px 20px;
+      overflow-y: auto;
+      transition: margin-left 0.3s ease;
+    }
+
+    .main-content.shifted {
+      margin-left: 260px;
+    }
+
+    /* Info Display Styles */
+    .info-container {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 30px;
+      border-radius: 10px;
+      max-width: 900px;
+      margin: 0 auto;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .info-title {
+      text-align: center;
+      color: #2e7d32;
+      margin-bottom: 30px;
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    .section-title {
+      color: #388e3c;
+      font-size: 18px;
+      margin-bottom: 15px;
+      padding-bottom: 5px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .info-row {
+      display: flex;
+      flex-wrap: wrap;
+      margin-bottom: 15px;
+    }
+
+    .info-group {
+      flex: 1 1 45%;
+      margin-right: 20px;
+      margin-bottom: 15px;
+      min-width: 250px;
+    }
+
+    .info-group:last-child {
+      margin-right: 0;
+    }
+
+    .info-label {
+      display: block;
+      margin-bottom: 5px;
+      color: #555;
+      font-weight: 500;
+    }
+
+    .info-value {
+      padding: 10px;
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 14px;
+      min-height: 40px;
+    }
+
+    .action-buttons {
+      display: flex;
+      justify-content: center;
+      margin-top: 30px;
+    }
+
+    .edit-btn {
+      background-color: #2e7d32;
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 0 10px;
+      transition: background-color 0.3s;
+    }
+
+    .edit-btn:hover {
+      background-color: #388e3c;
+    }
+
+    .print-btn {
+      background-color: #2196F3;
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 0 10px;
+      transition: background-color 0.3s;
+    }
+
+    .print-btn:hover {
+      background-color: #1976D2;
+    }
+
+    @media (max-width: 768px) {
+      .info-group {
+        flex: 1 1 100%;
+        margin-right: 0;
+      }
+      
+      .info-container {
+        padding: 20px;
+      }
+
+      /* Mobile navigation adjustments */
+      .sidebar {
+        width: 200px;
+        left: -200px;
+      }
+
+      .main-content {
+        padding: 70px 10px 10px 10px;
+      }
+
+      .main-content.shifted {
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <div class="navbar">
+    <button class="hamburger" id="hamburger">
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+    </button>
+    <div class="logo">
+      <img src="logo.png" alt="Logo" />
+    </div>
+  </div>
+
+     <div class="sidebar" id="navLinks">
+        <h2 class="ma">MANAGE</h2>
+        <nav class="category-nav">
+            <ul>
+                <li><a href="homepage.html" class="category-link">HOME</a></li>
+                <li>
+                    <a class="category-link" id="attendanceToggle">ATTENDANCE <span class="arrow">&#9656;</span></a>
+                    <ul id="attendanceMenu">
+                        <li><a href="attendance.html">Record & Summary of Attendance</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a class="category-link" id="employeeListToggle">SALARY DETAILS <span class="arrow">&#9656;</span></a>
+                    <ul id="employeeListMenu">
+                        <li><a href="salarydetails.html">Salary Details</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a class="category-link" id="bankTaxToggle">BANK AND TAX <span class="arrow">&#9656;</span></a>
+                    <ul id="bankTaxMenu">
+                        <li><a href="Bank & Tax Info.html">Bank & Tax Info</a></li>
+                        <li><a href="Bank & Tax Information Form.html">Bank & Tax Info Form</a></li>
+                        <li><a href="loan.html">Loan</a></li>
+                        <li><a href="loaninfo.html">Loan Info Form</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a class="category-link" id="payrollToggle">PAYROLL <span class="arrow">&#9656;</span></a>
+                    <ul id="payrollMenu">
+                        <li><a class="active" href="payroll.html">Payroll</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+  <div class="overlay" id="overlay"></div>
+
+  <!-- Main Content -->
+  <div class="main-content" id="mainContent">
+    <!-- Info Display Container -->
+    <div class="info-container">
+      <h2 class="info-title">BANK & TAX INFORMATION</h2>
+      
+      <!-- Display Section -->
+      <div id="displayInfo">
+        <!-- Bank Information Section -->
+        <h3 class="section-title">Bank Information</h3>
+        <div class="info-row">
+          <div class="info-group">
+            <span class="info-label">Account Holder Name</span>
+            <div class="info-value" id="displayAccountHolder"></div>
+          </div>
+        </div>
+        
+        <div class="info-row">
+          <div class="info-group">
+            <span class="info-label">Bank Name</span>
+            <div class="info-value" id="displayBankName"></div>
+          </div>
+          
+          <div class="info-group">
+            <span class="info-label">Bank Address</span>
+            <div class="info-value" id="displayBankAddress"></div>
+          </div>
+        </div>
+        
+        <div class="info-row">
+          <div class="info-group">
+            <span class="info-label">Account Number</span>
+            <div class="info-value" id="displayAccountNumber"></div>
+          </div>
+          
+          <div class="info-group">
+            <span class="info-label">Account Type</span>
+            <div class="info-value" id="displayAccountType"></div>
+          </div>
+        </div>
+        
+        <!-- Tax Information Section -->
+        <h3 class="section-title">Tax Information</h3>
+        <div class="info-row">
+          <div class="info-group">
+            <span class="info-label">Full Legal Name (or Business Name)</span>
+            <div class="info-value" id="displayFullLegalName"></div>
+          </div>
+          
+          <div class="info-group">
+            <span class="info-label">Tax Identification Number (TIN) / SSN</span>
+            <div class="info-value" id="displayTin"></div>
+          </div>
+        </div>
+        
+        <div class="info-row">
+          <div class="info-group">
+            <span class="info-label">Employer Identification Number (EIN)</span>
+            <div class="info-value" id="displayEin"></div>
+          </div>
+          
+          <div class="info-group">
+            <span class="info-label">Tax Residency Country</span>
+            <div class="info-value" id="displayTaxResidencyCountry"></div>
+          </div>
+        </div>
+        
+        <div class="info-row">
+          <div class="info-group">
+            <span class="info-label">Filing Status</span>
+            <div class="info-value" id="displayFilingStatus"></div>
+          </div>
+        </div>
+        
+        <div class="action-buttons">
+          <button class="edit-btn" id="editButton">Edit Information</button>
+          <button class="print-btn" id="printButton">Print Information</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Navigation functionality
+    const hamburger = document.getElementById('hamburger');
+    const sidebar = document.getElementById('navLinks');
+    const overlay = document.getElementById('overlay');
+    const mainContent = document.getElementById('mainContent');
+
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      sidebar.classList.toggle('active');
+      overlay.classList.toggle('active');
+      mainContent.classList.toggle('shifted');
+    });
+
+    overlay.addEventListener('click', () => {
+      hamburger.classList.remove('open');
+      sidebar.classList.remove('active');
+      overlay.classList.remove('active');
+      mainContent.classList.remove('shifted');
+    });
+
+    // Category navigation functionality
+    document.querySelectorAll('.category-link').forEach(link => {
+      link.addEventListener('click', function(e) {
+        const sublist = this.nextElementSibling;
+        const arrow = this.querySelector('.arrow');
+        if (sublist && sublist.tagName === 'UL') {
+          if (sublist.classList.contains('expanded')) {
+            sublist.classList.remove('expanded');
+            if (arrow) arrow.classList.remove('expanded');
+          } else {
+            document.querySelectorAll('.category-nav ul ul').forEach(el => el.classList.remove('expanded'));
+            document.querySelectorAll('.arrow').forEach(el => el.classList.remove('expanded'));
+            if (sublist) sublist.classList.add('expanded');
+            if (arrow) arrow.classList.add('expanded');
+          }
+        }
+      });
+    });
+
+    // Retrieve and display form data from localStorage
+    document.addEventListener('DOMContentLoaded', function() {
+      // Get the form data from localStorage
+      const savedData = localStorage.getItem('bankTaxInfo');
+      
+      if (savedData) {
+        const formData = JSON.parse(savedData);
+        
+        // Display the data
+        document.getElementById('displayAccountHolder').textContent = formData.accountHolder || '';
+        document.getElementById('displayBankName').textContent = formData.bankName || '';
+        document.getElementById('displayBankAddress').textContent = formData.bankAddress || '';
+        document.getElementById('displayAccountNumber').textContent = formData.accountNumber || '';
+        document.getElementById('displayAccountType').textContent = formData.accountType || '';
+        document.getElementById('displayFullLegalName').textContent = formData.fullLegalName || '';
+        document.getElementById('displayTin').textContent = formData.tin || '';
+        document.getElementById('displayEin').textContent = formData.ein || '';
+        document.getElementById('displayTaxResidencyCountry').textContent = formData.taxResidencyCountry || '';
+        document.getElementById('displayFilingStatus').textContent = formData.filingStatus || '';
+      } else {
+        // If no data is found
+        window.location.href = "Bank & Tax Information Form.html";
+      }
+    });
+
+    // Edit button functionality
+    document.getElementById('editButton').addEventListener('click', function() {
+      window.location.href = "Bank & Tax Information Form.html";
+    });
+
+    // Print button functionality
+    document.getElementById('printButton').addEventListener('click', function() {
+      window.print();
+    });
+  </script>
+</body>
+</html>

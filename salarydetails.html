@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">  
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Salary Details</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+      background-image: url("bpc.png");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: none;
+      z-index: 9;
+    }
+
+    .overlay.active {
+      display: block;
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #2e7d32;
+      padding: 10px 20px;
+      color: white;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      z-index: 11;
+    }
+
+    .hamburger {
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      background: none;
+      border: none;
+      z-index: 12;
+    }
+
+    .bar {
+      width: 25px;
+      height: 3px;
+      background-color: white;
+      margin: 4px 0;
+      transition: 0.4s;
+    }
+
+    .hamburger.open .bar:nth-child(1) {
+      transform: rotate(45deg) translate(5px, 5px);
+    }
+
+    .hamburger.open .bar:nth-child(2) {
+      opacity: 0;
+    }
+
+    .hamburger.open .bar:nth-child(3) {
+      transform: rotate(-45deg) translate(5px, -5px);
+    }
+
+    .logo img {
+      width: 50px;
+      margin-left: 10px;
+    }
+
+    .sidebar {
+      width: 260px;
+      background-color: #388e3c;
+      height: 100vh;
+      padding-top: 60px;
+      position: fixed;
+      left: -260px;
+      top: 0;
+      transition: left 0.3s ease;
+      z-index: 10;
+    }
+
+    .sidebar.active {
+      left: 0;
+    }
+
+    .ma {
+      margin: 0 0 10px 20px;
+      color: white;
+      font-weight: bold;
+    }
+
+    nav.category-nav ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    nav.category-nav > ul > li {
+      margin-bottom: 18px;
+    }
+
+    nav.category-nav a.category-link {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      text-decoration: none;
+      color: white;
+      font-weight: 600;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    nav.category-nav a.category-link:hover {
+      background-color: rgba(255, 255, 255, 0.15);
+    }
+
+    nav.category-nav ul ul {
+      margin-top: 8px;
+      margin-left: 15px;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.25s ease-out;
+    }
+
+    nav.category-nav ul ul.expanded {
+      max-height: 500px;
+    }
+
+    nav.category-nav ul ul li {
+      margin: 6px 0;
+    }
+
+    nav.category-nav ul ul a {
+      font-weight: 400;
+      font-size: 0.9rem;
+      color: #ddd;
+      padding: 6px 14px;
+      border-radius: 6px;
+      text-decoration: none;
+    }
+
+    nav.category-nav ul ul a:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .arrow {
+      font-size: 0.8rem;
+      transition: transform 0.25s ease;
+      user-select: none;
+    }
+
+    .arrow.expanded {
+      transform: rotate(90deg);
+    }
+
+    .main-content {
+      flex: 1;
+      margin-left: 0;
+      padding: 80px 20px 20px;
+      overflow-y: auto;
+      transition: margin-left 0.3s ease;
+    }
+
+    .main-content.shifted {
+      margin-left: 260px;
+    }
+
+    .employee-container {
+      background-color: rgba(255, 255, 255, 0.95);
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 1000px;
+      margin: 0 auto;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      color: #333;
+    }
+
+    .employee-title {
+      text-align: center;
+      font-size: 1.8rem;
+      font-weight: bold;
+      margin-bottom: 20px;
+      color: #2e7d32;
+    }
+
+    .employee-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .employee-table th,
+    .employee-table td {
+      border: 1px solid #2e7d32;
+      padding: 10px;
+      text-align: center;
+      font-size: 0.95rem;
+    }
+
+    .employee-table th {
+      background-color: #81c784;
+      color: white;
+    }
+
+    .employee-table tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    
+    @media (max-width: 600px) {
+      body {
+        flex-direction: column;
+      }
+
+      .navbar {
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 10px;
+      }
+
+      .sidebar {
+        width: 200px;
+        padding-top: 60px;
+        left: -200px;
+      }
+
+      .sidebar.active {
+        left: 0;
+      }
+
+      .main-content {
+        padding: 70px 10px 10px;
+        margin-left: 0 !important;
+      }
+
+      .main-content.shifted {
+        margin-left: 0 !important;
+      }
+
+      .employee-container {
+        padding: 15px;
+        max-width: 100%;
+        overflow-x: auto;
+      }
+
+      .employee-table th,
+      .employee-table td {
+        font-size: 0.8rem;
+        padding: 6px;
+      }
+
+      .employee-title {
+        font-size: 1.5rem;
+      }
+
+      .logo img {
+        width: 40px;
+      }
+
+      .hamburger .bar {
+        width: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <button class="hamburger" id="hamburger">
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+    </button>
+    <div class="logo">
+      <img src="logo.png" alt="Logo" />
+    </div>
+  </div>
+
+  <div class="sidebar" id="navLinks">
+    <h2 class="ma">MANAGE</h2>
+    <nav class="category-nav">
+      <ul>
+        <li><a href="homepage.html" class="category-link">HOME</a></li>
+        <li>
+          <a class="category-link" id="attendanceToggle">ATTENDANCE <span class="arrow">&#9656;</span></a>
+          <ul id="attendanceMenu">
+            <li><a href="attendance.html">Record & Summary of Attendance</a></li>
+          </ul>
+        </li>
+        <li>
+          <a class="category-link" id="employeeListToggle">SALARY DETAILS<span class="arrow">&#9656;</span></a>
+          <ul id="employeeListMenu">
+            <li><a href="salarydetails.html">Salary Details</a></li> <!-- Link to employee.html -->
+          </ul>
+        </li>
+        <li>
+          <a class="category-link" id="bankTaxToggle">BANK AND TAX <span class="arrow">&#9656;</span></a>
+          <ul id="bankTaxMenu">
+            <li><a href="Bank & Tax Info.html">Bank & Tax Info</a></li>
+            <li><a href="Bank & Tax Information Form.html">Bank & Tax Info Form</a></li>
+            <li><a href="loan.html">Loan</a></li>
+            <li><a href="loaninfo.html">Loan Info Form</a></li>
+          </ul>
+        </li>
+        <li>
+          <a class="category-link" id="payrollToggle">PAYROLL <span class="arrow">&#9656;</span></a>
+          <ul id="payrollMenu">
+            <li><a class="active" href="payroll.html">Payroll</a></li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+  </div>
+
+  <div class="overlay" id="overlay"></div>
+
+  <div class="main-content" id="mainContent">
+    <div class="employee-container">
+      <h2 class="employee-title">SALARY DETAILS</h2>
+      <div style="margin-bottom: 20px; text-align: center;">
+        <label for="salaryDate">Select Date:</label>
+        <input type="date" id="salaryDate">
+      </div>
+      <table class="employee-table">
+        <thead>
+          <tr>
+            <th>Employee Name</th>
+            <th>Position</th>
+            <th>Location</th>
+            <th>Leave Taken</th>
+            <th>Day Payable</th>
+            <th>Net Salary</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // DOM Elements
+    const hamburger = document.getElementById('hamburger');
+    const sidebar = document.getElementById('navLinks');
+    const overlay = document.getElementById('overlay');
+    const mainContent = document.getElementById('mainContent');
+    const salaryDateInput = document.getElementById('salaryDate');
+    const tableBody = document.querySelector('.employee-table tbody');
+
+    // Toggle sidebar menu when hamburger clicked
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      sidebar.classList.toggle('active');
+      overlay.classList.toggle('active');
+      mainContent.classList.toggle('shifted');
+    });
+
+    // Close sidebar when clicking outside (on overlay)
+    overlay.addEventListener('click', () => {
+      hamburger.classList.remove('open');
+      sidebar.classList.remove('active');
+      overlay.classList.remove('active');
+      mainContent.classList.remove('shifted');
+    });
+
+    // Toggle sidebar submenus on category link click
+    document.querySelectorAll('.category-link').forEach(link => {
+      link.addEventListener('click', function (e) {
+        const sublist = this.nextElementSibling;   
+        const arrow = this.querySelector('.arrow');
+
+        if (sublist && sublist.classList.contains('expanded')) {
+          sublist.classList.remove('expanded');
+          if (arrow) arrow.classList.remove('expanded');
+        } else {
+          document.querySelectorAll('.category-nav ul ul').forEach(el => el.classList.remove('expanded'));
+          document.querySelectorAll('.arrow').forEach(el => el.classList.remove('expanded'));
+          
+          if (sublist) sublist.classList.add('expanded');
+          if (arrow) arrow.classList.add('expanded');
+        }
+      });
+    });
+
+    // Employee names array for easy referencing
+    const names = [
+      "Jasmine Dimagiba",
+      "Cherry Santos",
+      "Jerry Mia Cruz",
+      "Vhane Smith",
+      "Gary David Cruz",
+      "John Khier Dela Cruz",
+      "Pablito De Jesus"
+    ];
+
+    // Base salary data mapped by salary date strings
+    const salaryData = {
+      "2025-01-15": [
+        [names[0], "Program Head", "Malolos", "0", "20", "30000"],
+        [names[1], "Teacher", "Malolos", "0", "20", "30000"],
+        [names[2], "Teacher", "Malolos", "0", "20", "30000"],
+        [names[3], "Coordinator", "Malolos", "0", "20", "3000"],
+        [names[4], "Accountant", "Malolos", "0", "20", "30000"],
+        [names[5], "Janitor", "Malolos", "0", "20", "20000"]
+      ],
+      "2025-02-15": [
+        [names[0], "Program Head", "Malolos", "1", "19", "29500"],
+        [names[1], "Teacher", "Malolos", "0", "20", "28800"],
+        [names[2], "Teacher", "Malolos", "0", "20", "29100"],
+        [names[3], "Coordinator", "Malolos", "1", "19", "27000"],
+        [names[4], "Accountant", "Malolos", "2", "18", "30800"],
+        [names[5], "Janitor", "Malolos", "0", "20", "25200"]
+      ]
+    };
+
+    ["2025-03-15", "2025-04-15", "2025-05-15", "2025-06-15", "2025-07-15",
+     "2025-08-15", "2025-09-15", "2025-10-15", "2025-11-15", "2025-12-15"].forEach(date => {
+      salaryData[date] = JSON.parse(JSON.stringify(salaryData["2025-02-15"]));
+    });
+
+    function updateSalaryTable(date) {
+      const records = salaryData[date]; 
+      tableBody.innerHTML = "";       
+
+      if (records) {
+        records.forEach(row => {
+          const tr = document.createElement("tr");
+          row.forEach((cell, i) => {
+            const td = document.createElement("td");
+            if (i === 5) {
+              td.textContent = new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(Number(cell));
+            } else {
+              td.textContent = cell;
+            }
+            tr.appendChild(td);
+          });
+          tableBody.appendChild(tr);
+        });
+      } else {
+        const tr = document.createElement("tr");
+        const td = document.createElement("td");
+        td.colSpan = 6;  
+        td.textContent = "No salary data available for selected date.";
+        tr.appendChild(td);
+        tableBody.appendChild(tr);
+      }
+    }
+
+    salaryDateInput.addEventListener("change", () => {
+      const selectedDate = salaryDateInput.value;
+      updateSalaryTable(selectedDate);
+    });
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const today = new Date().toISOString().split("T")[0]; 
+      const defaultDate = Object.keys(salaryData).find(d => d >= today) || "2025-01-15";
+
+      salaryDateInput.value = defaultDate;   
+      updateSalaryTable(defaultDate);        
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payroll</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            background-color: #1b1b1b;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #2e7d32;
+            padding: 10px 20px;
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            z-index: 11;
+        }
+        .hamburger {
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            background: none;
+            border: none;
+            z-index: 12;
+        }
+        .bar {
+            width: 25px;
+            height: 3px;
+            background-color: white;
+            margin: 4px 0;
+            transition: 0.4s;
+        }
+    .sidebar {
+      width: 260px;
+      background-color: #388e3c;
+      height: 100vh;
+      padding-top: 60px;
+      position: fixed;
+      left: -260px;
+      top: 0;
+      transition: left 0.3s ease;
+      z-index: 10;
+    }
+
+    .sidebar.active {
+      left: 0;
+    }
+
+    .ma {
+      margin: 0 0 10px 20px;
+      color: white;
+      font-weight: bold;
+    }
+
+    nav.category-nav ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    nav.category-nav > ul > li {
+      margin-bottom: 18px;
+    }
+
+    nav.category-nav a.category-link {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      text-decoration: none;
+      color: white;
+      font-weight: 600;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    nav.category-nav a.category-link:hover {
+      background-color: rgba(255, 255, 255, 0.15);
+    }
+
+    nav.category-nav ul ul {
+      margin-top: 8px;
+      margin-left: 15px;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.25s ease-out;
+    }
+
+    nav.category-nav ul ul.expanded {
+      max-height: 500px;
+    }
+
+    nav.category-nav ul ul li {
+      margin: 6px 0;
+    }
+
+    nav.category-nav ul ul a {
+      font-weight: 400;
+      font-size: 0.9rem;
+      color: #ddd;
+      padding: 6px 14px;
+      border-radius: 6px;
+      text-decoration: none;
+    }
+
+    nav.category-nav ul ul a:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .arrow {
+      font-size: 0.8rem;
+      transition: transform 0.25s ease;
+      user-select: none;
+    }
+
+    .arrow.expanded {
+      transform: rotate(90deg);
+    }
+
+    .main-content {
+      flex: 1;
+      margin-left: 0;
+      padding: 80px 20px 20px 20px;
+      overflow-y: auto;
+      transition: margin-left 0.3s ease;
+      background-image: url("bpc.png");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+        .main-content {
+            flex: 1;
+            margin-left: 0;
+            padding: 80px 20px 20px 20px;
+            overflow-y: auto;
+            transition: margin-left 0.3s ease;
+            background-color: #f5f5f5;
+            margin-bottom: 60px; /* Adjust for navbar */
+        }
+        .payroll-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 800px;
+            margin: 20px auto;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2e7d32;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #2e7d32;
+        }
+        th {
+            background-color: #81c784;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .download-btn {
+            background-color: #2e7d32;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .download-btn:hover {
+            background-color: #388e3c;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+                left: -200px;
+            }
+            .main-content {
+                padding: 70px 10px 10px 10px;
+            }
+            .payroll-container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <button class="hamburger" id="hamburger">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+        </button>
+        <div class="logo">
+            <img src="logo.png" alt="Logo" style="width: 50px;" />
+        </div>
+    </div>
+     <div class="sidebar" id="navLinks">
+        <h2 class="ma">MANAGE</h2>
+        <nav class="category-nav">
+            <ul>
+                <li><a href="homepage.html" class="category-link">HOME</a></li>
+                <li>
+                    <a class="category-link" id="attendanceToggle">ATTENDANCE <span class="arrow">&#9656;</span></a>
+                    <ul id="attendanceMenu">
+                        <li><a href="attendance.html">Record & Summary of Attendance</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a class="category-link" id="employeeListToggle">SALARY DETAILS <span class="arrow">&#9656;</span></a>
+                    <ul id="employeeListMenu">
+                        <li><a href="salarydetails.html">Salary Details</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a class="category-link" id="bankTaxToggle">BANK AND TAX <span class="arrow">&#9656;</span></a>
+                    <ul id="bankTaxMenu">
+                        <li><a href="Bank & Tax Info.html">Bank & Tax Info</a></li>
+                        <li><a href="Bank & Tax Information Form.html">Bank & Tax Info Form</a></li>
+                        <li><a href="loan.html">Loan</a></li>
+                        <li><a href="loaninfo.html">Loan Info Form</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a class="category-link" id="payrollToggle">PAYROLL <span class="arrow">&#9656;</span></a>
+                    <ul id="payrollMenu">
+                        <li><a class="active" href="payroll.html">Payroll</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    <div class="main-content" id="mainContent">
+        <div class="payroll-container">
+            <h2>Payroll Information</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Employee Name</th>
+                        <th>ID</th>
+                        <th>Gross</th>
+                        <th>Deduction</th>
+                        <th>Cash Advance</th>
+                        <th>Net Pay</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="payrollTableBody">
+                    <!-- More rows can be added here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="payslipModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeModal">&times;</span>
+            <h2>Pay Slip</h2>
+            <p><strong>Employee Name:</strong> <span id="payslipEmployeeName"></span></p>
+            <p><strong>Employee ID:</strong> <span id="payslipEmployeeID"></span></p>
+            <p><strong>Gross Pay:</strong> <span id="payslipGrossPay"></span></p>
+            <p><strong>Deduction:</strong> <span id="payslipDeduction"></span></p>
+            <p><strong>Cash Advance:</strong> <span id="payslipCashAdvance"></span></p>
+            <p><strong>Net Pay:</strong> <span id="payslipNetPay"></span></p>
+            <button class="download-btn" id="downloadPayslip">Download</button>
+            <button class="download-btn" id="closePayslip">Close</button>
+            <p id="downloadMessage" style="display: none; color: green;">Download successfully!</p>
+        </div>
+    </div>
+
+    <script>
+        const hamburger = document.getElementById('hamburger');
+        const sidebar = document.getElementById('navLinks');
+        const modal = document.getElementById("payslipModal");
+        
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('open');
+            sidebar.classList.toggle('active');
+            document.getElementById('mainContent').classList.toggle('shifted');
+        });
+
+        function toggleSubMenu(menuId) {
+            const menu = document.getElementById(menuId);
+            if (menu) {
+                menu.classList.toggle('expanded');
+                const arrow = document.getElementById(`${menuId.replace('Menu', 'Toggle')}`).querySelector('.arrow');
+                arrow.classList.toggle('expanded');
+            }
+        }
+
+        const menuItems = [
+            'attendanceToggle',
+            'employeeListToggle',
+            'bankTaxToggle',
+            'payrollToggle'
+        ];
+
+        menuItems.forEach(item => {
+            const toggleElement = document.getElementById(item);
+            toggleElement.addEventListener('click', (event) => {
+                toggleSubMenu(`${item.replace('Toggle', 'Menu')}`);
+                const links = document.querySelectorAll('.category-link');
+                links.forEach(link => link.classList.remove('active'));
+                event.currentTarget.classList.toggle('active');
+            });
+        });
+
+        // Retrieve the loan data
+        const loanData = JSON.parse(localStorage.getItem('loanInfo'));
+
+        if (loanData) {
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td>${loanData.loanName}</td>
+                <td>${loanData.loanID}</td>
+                <td>${loanData.payment}</td>
+                <td>${loanData.interest}</td>
+                <td>100</td> <!-- Placeholder for Cash Advance -->
+                <td>${(loanData.payment - (loanData.interest + 100)).toFixed(2)}</td> <!-- Example Calculation -->
+                <td><button class="view-payslip-btn">View Payslip</button></td>
+            `;
+            document.getElementById('payrollTableBody').appendChild(newRow);
+        }
+
+        // Event delegation for viewing payslips
+        document.getElementById('payrollTableBody').addEventListener('click', (event) => {
+            if (event.target.classList.contains('view-payslip-btn')) {
+                const row = event.target.closest('tr');
+                const employeeName = row.cells[0].innerText;
+                const employeeID = row.cells[1].innerText;
+                const grossPay = row.cells[2].innerText;
+                const deduction = row.cells[3].innerText;
+                const cashAdvance = row.cells[4].innerText;
+                const netPay = row.cells[5].innerText;
+
+                document.getElementById('payslipEmployeeName').innerText = employeeName;
+                document.getElementById('payslipEmployeeID').innerText = employeeID;
+                document.getElementById('payslipGrossPay').innerText = grossPay;
+                document.getElementById('payslipDeduction').innerText = deduction;
+                document.getElementById('payslipCashAdvance').innerText = cashAdvance;
+                document.getElementById('payslipNetPay').innerText = netPay;
+
+                modal.style.display = "block";
+            }
+        });
+
+        // Close modal event
+        document.getElementById("closeModal").onclick = function() {
+            modal.style.display = "none";
+            document.getElementById('downloadMessage').style.display = 'none'; // Hide the download message
+        };
+
+        // Close modal on button click from the modal
+        document.getElementById("closePayslip").onclick = function() {
+            modal.style.display = "none";
+            document.getElementById('downloadMessage').style.display = 'none'; // Hide the download message
+        };
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+                document.getElementById('downloadMessage').style.display = 'none'; // Hide the download message
+            }
+        };
+
+        // Download functionality
+        document.getElementById('downloadPayslip').onclick = function() {
+            // Simulating a download
+            const downloadMessage = document.getElementById('downloadMessage');
+            downloadMessage.style.display = 'block'; // Show success message
+            setTimeout(() => {
+                downloadMessage.style.display = 'none'; // Hide message after 3 seconds
+            }, 3000);
+        };
+    </script>
+</body>
+</html>
